@@ -1,17 +1,9 @@
 ---
 import '../styles/global.css'
-import Header from '../components/Header.astro'
+import Layout from '../layouts/Layout.astro';
+
 ---
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>Offres</title>
-	</head>
-	<body>
-        <Header />
-		<h1>Offres</h1>
-	</body>
-</html>
+
+<Layout titre="Accueil">
+    <h1>Offres</h1> <!-- ou "Offres" pour la page des offres -->
+</Layout>
