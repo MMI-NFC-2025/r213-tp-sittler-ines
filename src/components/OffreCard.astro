@@ -1,0 +1,68 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+  nomMaison: string;
+  adresse: string;
+  prix: number;
+  surface: number;
+  nbChambres: number;
+  nbSdb: number;
+  favori: boolean;
+  image: ImageMetadata;
+}
+
+const {
+  nomMaison,
+  adresse,
+  prix,
+  surface,
+  nbChambres,
+  nbSdb,
+  favori,
+  image,
+} = Astro.props;
+---
+
+<article
+  class="offre bg-blue-50 border border-blue-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition"
+  data-favori={favori.toString()}
+>
+  <!-- Image -->
+  <div class="relative h-52">
+    <Image
+      src={image}
+      alt={nomMaison}
+      class="w-full h-full object-cover"
+    />
+
+    {
+      favori && (
+        <span
+          class="absolute top-3 right-3 bg-blue-800 text-blue-100 text-xs px-3 py-1 rounded-full"
+        >
+          ★ Favori
+        </span>
+      )
+    }
+  </div>
+
+  <!-- Contenu -->
+  <div class="p-5 text-blue-900">
+    <h2 class="font-semibold text-lg text-blue-800">
+      {nomMaison}
+    </h2>
+
+    <p class="text-sm text-blue-600">
+      {adresse}
+    </p>
+
+    <p class="mt-2 text-sm text-blue-700">
+      {surface} m² · {nbChambres} ch · {nbSdb} sdb
+    </p>
+
+    <p class="font-bold text-lg mt-3 text-blue-800">
+      {prix} € / mois
+    </p>
+  </div>
+</article>
