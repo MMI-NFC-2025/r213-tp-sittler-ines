@@ -1,61 +1,18 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import OffreCard from "../components/OffreCard.astro";
-
 // Images
-import Image1 from "../assets/img/image1.png";
-import Image2 from "../assets/img/image2.png";
-import Image3 from "../assets/img/image3.png";
+import { getOffres } from "../../js/backend.mjs";
 
-const images = {
-  "image1.png": Image1,
-  "image2.png": Image2,
-  "image3.png": Image3,
-};
 
-// Données statiques
-const offres = [
-  {
-    adresse: "2821 Lake Sevilla, Palm Harbor, TX",
-    favori: true,
-    id: "64l3n8nar836i5j",
-    nbChambres: 4,
-    nbSdb: 2,
-    nomMaison: "Beverly Springfield",
-    prix: 2700,
-    surface: 45,
-    imgUrl: "image1.png",
-  },
-  {
-    adresse: "2699 Green Valley, Highland Lake",
-    favori: true,
-    id: "lo831zeg10hpm9y",
-    nbChambres: 4,
-    nbSdb: 2,
-    nomMaison: "Palm Harbor",
-    prix: 2095,
-    surface: 42,
-    imgUrl: "image2.png",
-  },
-  {
-    adresse: "909 Woodland St, Michigan, IN",
-    favori: false,
-    id: "s1zuhj19x8eb242",
-    nbChambres: 4,
-    nbSdb: 3,
-    nomMaison: "Faulkner Ave",
-    prix: 4550,
-    surface: 80,
-    imgUrl: "image3.png",
-  },
-];
+const offres = await getOffres();
 ---
 <Layout titre="Offres">
   <h1 class="text-3xl font-bold text-blue-800 mb-6">
     Nos offres
   </h1>
 
-  <!-- Bouton favoris -->
+  <!-- Bouton favoris (JS plus bas) -->
   <button
     id="favori-button"
     class="mb-8 rounded-full px-6 py-3 bg-blue-800 text-blue-100 hover:bg-blue-900 transition"
@@ -63,38 +20,36 @@ const offres = [
     Afficher les favoris
   </button>
 
-  <!-- Grille des offres -->
-  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-    {
-      offres.map((offre) => (
-        <OffreCard
-          {...offre}
-          image={images[offre.imgUrl]}
-        />
-      ))
-    }
-  </div>
+ <!-- Grille des offres -->
+<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {
+    offres.map((offre) => (
+      <OffreCard
+        {...offre}
+        image={`http://127.0.0.1:8090/api/files/maison/${offre.id}/${offre.imgUrl?.[0]}`}
+      />
+    ))
+  }
+</div>
 
-  <!-- Interactivité -->
-  <script>
-    const button = document.getElementById("favori-button");
-    let showOnlyFavorites = false;
+<!-- Interactivité favoris -->
+<script>
+  const button = document.getElementById("favori-button");
+  let showOnlyFavorites = false;
 
-    button?.addEventListener("click", () => {
-      showOnlyFavorites = !showOnlyFavorites;
-      const offres = document.querySelectorAll(".offre");
+  button?.addEventListener("click", () => {
+    showOnlyFavorites = !showOnlyFavorites;
 
-      offres.forEach((offre) => {
-        const isFavori = offre.dataset.favori === "true";
+    document.querySelectorAll(".offre").forEach((card) => {
+      const isFavori = card.getAttribute("data-favori") === "true";
 
-        if (showOnlyFavorites) {
-          offre.style.display = isFavori ? "block" : "none";
-          button.textContent = "Afficher tout";
-        } else {
-          offre.style.display = "block";
-          button.textContent = "Afficher les favoris";
-        }
-      });
+      if (showOnlyFavorites) {
+        card.style.display = isFavori ? "block" : "none";
+        button.textContent = "Afficher tout";
+      } else {
+        card.style.display = "block";
+        button.textContent = "Afficher les favoris";
+      }
     });
-  </script>
-</Layout>
+  });
+</script>

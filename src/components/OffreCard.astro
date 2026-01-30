@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 
 interface Props {
   nomMaison: string;
@@ -9,7 +8,7 @@ interface Props {
   nbChambres: number;
   nbSdb: number;
   favori: boolean;
-  image: ImageMetadata;
+  image?: string;
 }
 
 const {
@@ -21,7 +20,7 @@ const {
   nbSdb,
   favori,
   image,
-} = Astro.props;
+} = Astro.props as Props;
 ---
 
 <article
@@ -30,21 +29,19 @@ const {
 >
   <!-- Image -->
   <div class="relative h-52">
-    <Image
-      src={image}
-      alt={nomMaison}
-      class="w-full h-full object-cover"
-    />
+    {image && (
+      <img
+        src={image}
+        alt={nomMaison}
+        class="w-full h-full object-cover"
+      />
+    )}
 
-    {
-      favori && (
-        <span
-          class="absolute top-3 right-3 bg-blue-800 text-blue-100 text-xs px-3 py-1 rounded-full"
-        >
-          ★ Favori
-        </span>
-      )
-    }
+    {favori && (
+      <span class="absolute top-3 right-3 bg-blue-800 text-blue-100 text-xs px-3 py-1 rounded-full">
+        ★ Favori
+      </span>
+    )}
   </div>
 
   <!-- Contenu -->
