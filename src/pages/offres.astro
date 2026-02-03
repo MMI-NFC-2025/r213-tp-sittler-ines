@@ -20,17 +20,6 @@ const offres = await getOffres();
     Afficher les favoris
   </button>
 
- <!-- Grille des offres -->
-<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-  {
-    offres.map((offre) => (
-      <OffreCard
-        {...offre}
-        image={`http://127.0.0.1:8090/api/files/maison/${offre.id}/${offre.imgUrl?.[0]}`}
-      />
-    ))
-  }
-</div>
 
 <!-- Interactivité favoris -->
 <script>
