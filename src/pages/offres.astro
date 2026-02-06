@@ -1,9 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import OffreCard from "../components/OffreCard.astro";
-// Images
-import { getOffres } from "../../js/backend.mjs";
-
+import { getOffres } from "../js/backend.mjs";
 
 const offres = await getOffres();
 ---
@@ -20,6 +18,12 @@ const offres = await getOffres();
     Afficher les favoris
   </button>
 
+  <!-- Grille d'offres -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {offres.map((offre) => (
+      <OffreCard offre={offre} />
+    ))}
+  </div>
 
 <!-- Interactivité favoris -->
 <script>
@@ -30,14 +34,15 @@ const offres = await getOffres();
     showOnlyFavorites = !showOnlyFavorites;
 
     document.querySelectorAll(".offre").forEach((card) => {
-      const isFavori = card.getAttribute("data-favori") === "true";
+      const htmlCard = card as HTMLElement;
+      const isFavori = htmlCard.getAttribute("data-favori") === "true";
 
       if (showOnlyFavorites) {
-        card.style.display = isFavori ? "block" : "none";
-        button.textContent = "Afficher tout";
+        htmlCard.style.display = isFavori ? "block" : "none";
+        button!.textContent = "Afficher tout";
       } else {
-        card.style.display = "block";
-        button.textContent = "Afficher les favoris";
+        htmlCard.style.display = "block";
+        button!.textContent = "Afficher les favoris";
       }
     });
   });

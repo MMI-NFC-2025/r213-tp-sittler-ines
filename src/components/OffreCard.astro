@@ -1,43 +1,28 @@
 ---
+import PbImage from './PbImage.astro';
 
 interface Props {
-  nomMaison: string;
-  adresse: string;
-  prix: number;
-  surface: number;
-  nbChambres: number;
-  nbSdb: number;
-  favori: boolean;
-  image?: string;
+  offre: any;
 }
 
-const {
-  nomMaison,
-  adresse,
-  prix,
-  surface,
-  nbChambres,
-  nbSdb,
-  favori,
-  image,
-} = Astro.props as Props;
+const { offre } = Astro.props;
 ---
 
 <article
   class="offre bg-blue-50 border border-blue-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition"
-  data-favori={favori.toString()}
+  data-favori={offre.favori ? 'true' : 'false'}
 >
   <!-- Image -->
-  <div class="relative h-52">
-    {image && (
-      <img
-        src={image}
-        alt={nomMaison}
-        class="w-full h-full object-cover"
-      />
+  <div class="relative h-52 bg-gray-200">
+    {offre.images && offre.images.length > 0 ? (
+      <PbImage record={offre} recordImage={offre.images[0]} width={400} height={208} />
+    ) : (
+      <div class="w-full h-full flex items-center justify-center text-gray-500">
+        Pas d'image
+      </div>
     )}
 
-    {favori && (
+    {offre.favori && (
       <span class="absolute top-3 right-3 bg-blue-800 text-blue-100 text-xs px-3 py-1 rounded-full">
         ★ Favori
       </span>
@@ -47,19 +32,7 @@ const {
   <!-- Contenu -->
   <div class="p-5 text-blue-900">
     <h2 class="font-semibold text-lg text-blue-800">
-      {nomMaison}
+      {offre.nomMaison}
     </h2>
-
-    <p class="text-sm text-blue-600">
-      {adresse}
-    </p>
-
-    <p class="mt-2 text-sm text-blue-700">
-      {surface} m² · {nbChambres} ch · {nbSdb} sdb
-    </p>
-
-    <p class="font-bold text-lg mt-3 text-blue-800">
-      {prix} € / mois
-    </p>
   </div>
 </article>
