@@ -6,23 +6,28 @@ interface Props {
 }
 
 const { offre } = Astro.props;
+const nomMaison = offre.nomMaison ?? offre.Nom;
+const favori = offre.favori ?? offre.Favori;
+const image =
+  offre.images?.[0] ??
+  (Array.isArray(offre.Image) ? offre.Image[0] : offre.Image);
 ---
 
 <article
   class="offre bg-blue-50 border border-blue-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition"
-  data-favori={offre.favori ? 'true' : 'false'}
+  data-favori={favori ? 'true' : 'false'}
 >
   <!-- Image -->
   <div class="relative h-52 bg-gray-200">
-    {offre.images && offre.images.length > 0 ? (
-      <PbImage record={offre} recordImage={offre.images[0]} width={400} height={208} />
+    {image ? (
+      <PbImage record={offre} recordImage={image} width={400} height={208} />
     ) : (
       <div class="w-full h-full flex items-center justify-center text-gray-500">
         Pas d'image
       </div>
     )}
 
-    {offre.favori && (
+    {favori && (
       <span class="absolute top-3 right-3 bg-blue-800 text-blue-100 text-xs px-3 py-1 rounded-full">
         ★ Favori
       </span>
@@ -32,7 +37,10 @@ const { offre } = Astro.props;
   <!-- Contenu -->
   <div class="p-5 text-blue-900">
     <h2 class="font-semibold text-lg text-blue-800">
-      {offre.nomMaison}
+      {nomMaison}
     </h2>
+    <a href={`/offres/${offre.id}`} class="mt-2 inline-block text-sm text-blue-700 hover:underline">
+      Voir plus
+    </a>
   </div>
 </article>

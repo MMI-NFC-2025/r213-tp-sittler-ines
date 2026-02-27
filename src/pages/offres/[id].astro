@@ -1,0 +1,38 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import PbImage from "../../components/PbImage.astro";
+import { getOffre } from "../../js/backend.mjs";
+
+const { id } = Astro.params;
+const offre = await getOffre(id);
+
+if (!offre) {
+  return Astro.redirect("/offres");
+}
+
+const nomMaison = offre.nomMaison ?? offre.Nom;
+const adresse = offre.adresse ?? offre.Adresse;
+const prix = offre.prix ?? offre.Prix;
+const surface = offre.surface ?? offre.Superficie;
+const nbChambres = offre.nbChambres ?? offre.Nombre_de_chambre;
+const nbSdb = offre.nbSdb ?? offre.Nombre_sdb;
+const image = offre.images?.[0] ?? (Array.isArray(offre.Image) ? offre.Image[0] : offre.Image);
+---
+
+<Layout titre={nomMaison}>
+  <h2 class="text-2xl font-bold mb-4">{nomMaison}</h2>
+
+  {image && (
+    <div class="mb-6 max-w-xl">
+      <PbImage record={offre} recordImage={image} width={800} height={450} />
+    </div>
+  )}
+
+  <ul class="space-y-2">
+    <li>{adresse}</li>
+    <li>{prix} €</li>
+    <li>{surface} m²</li>
+    <li>{nbChambres} chambres</li>
+    <li>{nbSdb} salles de bain</li>
+  </ul>
+</Layout>

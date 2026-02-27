@@ -14,7 +14,7 @@ const imageURL = await getImageUrl(record, recordImage);
 {imageURL && 
     <img
         src={imageURL}
-        alt={record.nomMaison || 'Image'}
+        alt={record.nomMaison || record.Nom || 'Image'}
         width={width}
         height={height}
         style="width: 100%; height: 100%; object-fit: cover;"
