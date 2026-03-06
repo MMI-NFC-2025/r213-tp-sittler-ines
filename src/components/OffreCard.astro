@@ -6,63 +6,66 @@ interface Props {
 }
 
 const { offre } = Astro.props;
-const nomMaison = offre.nomMaison ?? offre.Nom;
-const favori = offre.favori ?? offre.Favori;
+const nomMaison = offre.nomMaison ?? offre.Nom ?? 'Maison';
+const favori = (offre.favori ?? offre.Favori) === true;
+const prix = Number(offre.prix ?? offre.Prix ?? 0);
+const surface = Number(offre.surface ?? offre.Superficie ?? 0);
+const ville = (offre.adresse ?? offre.Adresse ?? 'Ville non renseignee').split(',').pop()?.trim();
 const image =
   offre.images?.[0] ??
   (Array.isArray(offre.Image) ? offre.Image[0] : offre.Image);
 ---
 
-<article
-  class="offre bg-blue-50 border border-blue-200 rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition"
-  data-favori={favori ? 'true' : 'false'}
->
-  <!-- Image -->
-  <div class="relative h-52 bg-gray-200">
+<article class="offre panel-card overflow-hidden reveal" data-favori={favori ? 'true' : 'false'}>
+  <div class="relative h-52 bg-slate-200">
     {image ? (
-      <PbImage record={offre} recordImage={image} width={400} height={208} />
+      <PbImage record={offre} recordImage={image} width={420} height={208} />
     ) : (
-      <div class="w-full h-full flex items-center justify-center text-gray-500">
+      <div class="w-full h-full flex items-center justify-center text-slate-500">
         Pas d'image
       </div>
     )}
 
     <button
       type="button"
-      class="favoriteButton absolute bottom-0 left-0 p-2 text-white rounded-tr-lg bg-blue-900/80 hover:bg-blue-900"
+      class="favoriteButton absolute bottom-0 left-0 px-3 py-1.5 text-white rounded-tr-xl bg-slate-900/78 hover:bg-slate-900"
       data-offre={JSON.stringify(offre)}
       aria-label="Ajouter aux favoris"
     >
-      <span class="favorite-icon text-2xl leading-none" aria-hidden="true">
+      <span class="favorite-icon text-xl leading-none" aria-hidden="true">
         {favori ? "\u2605" : "\u2606"}
       </span>
     </button>
 
     {favori && (
-      <span class="absolute top-3 right-3 bg-blue-800 text-blue-100 text-xs px-3 py-1 rounded-full">
+      <span class="absolute top-3 right-3 bg-emerald-100 text-emerald-800 text-xs px-3 py-1 rounded-full font-semibold">
         {"\u2605 Favori"}
       </span>
     )}
   </div>
 
-  <!-- Contenu -->
-  <div class="p-5 text-blue-900">
-    <h2 class="font-semibold text-lg text-blue-800">
-      {nomMaison}
-    </h2>
-    <a href={`/offres/${offre.id}`} class="mt-2 inline-block text-sm text-blue-700 hover:underline">
-      Voir plus
-    </a>
+  <div class="p-4">
+    <p class="text-xs uppercase tracking-wide text-slate-500 m-0">{ville}</p>
+    <h2 class="mt-1 text-lg font-semibold text-slate-900">{nomMaison}</h2>
+    <p class="text-sm text-slate-600 mt-1 mb-3">{surface} m2</p>
+    <div class="flex items-center justify-between gap-3">
+      <p class="m-0 text-base font-bold text-slate-900">{prix.toLocaleString('fr-FR')} EUR</p>
+      <a href={`/offres/${offre.id}`} class="soft-btn">Voir plus</a>
+    </div>
   </div>
 </article>
 
 <script>
   //@ts-nocheck
   import { setFavori } from "../js/backend.mjs";
-  const favoriteButtons = document.querySelectorAll(".favoriteButton");
 
-  favoriteButtons.forEach((button) => {
-    button.addEventListener('click', async () => {
+  if (!window.__favoriteToggleInit) {
+    window.__favoriteToggleInit = true;
+
+    document.addEventListener('click', async (event) => {
+      const button = event.target.closest('.favoriteButton');
+      if (!button) return;
+
       const offreData = JSON.parse(button.dataset.offre || '{}');
       const currentFavori = offreData.favori ?? offreData.Favori ?? false;
       offreData.favori = currentFavori;
@@ -71,7 +74,7 @@ const image =
       try {
         await setFavori(offreData);
       } catch (error) {
-        console.error("Impossible de mettre a jour le favori", error);
+        console.error('Impossible de mettre a jour le favori', error);
         return;
       }
 
@@ -89,5 +92,5 @@ const image =
         card.setAttribute('data-favori', newFavori ? 'true' : 'false');
       }
     });
-  });
+  }
 </script>

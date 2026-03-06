@@ -10,29 +10,56 @@ if (!offre) {
   return Astro.redirect("/offres");
 }
 
-const nomMaison = offre.nomMaison ?? offre.Nom;
-const adresse = offre.adresse ?? offre.Adresse;
-const prix = offre.prix ?? offre.Prix;
-const surface = offre.surface ?? offre.Superficie;
-const nbChambres = offre.nbChambres ?? offre.Nombre_de_chambre;
-const nbSdb = offre.nbSdb ?? offre.Nombre_sdb;
+const nomMaison = offre.nomMaison ?? offre.Nom ?? "Maison";
+const adresse = offre.adresse ?? offre.Adresse ?? "Adresse non renseignee";
+const prix = Number(offre.prix ?? offre.Prix ?? 0);
+const surface = Number(offre.surface ?? offre.Superficie ?? 0);
+const nbChambres = Number(offre.nbChambres ?? offre.Nombre_de_chambre ?? 0);
+const nbSdb = Number(offre.nbSdb ?? offre.Nombre_sdb ?? 0);
 const image = offre.images?.[0] ?? (Array.isArray(offre.Image) ? offre.Image[0] : offre.Image);
 ---
 
 <Layout titre={nomMaison}>
-  <h2 class="text-2xl font-bold mb-4">{nomMaison}</h2>
-
-  {image && (
-    <div class="mb-6 max-w-xl">
-      <PbImage record={offre} recordImage={image} width={800} height={450} />
+  <section class="page-shell">
+    <div class="page-head">
+      <div>
+        <p class="page-kicker">Fiche bien</p>
+        <h1>{nomMaison}</h1>
+        <p class="page-note">{adresse}</p>
+      </div>
+      <a href="/offres" class="soft-btn">Retour aux offres</a>
     </div>
-  )}
 
-  <ul class="space-y-2">
-    <li>{adresse}</li>
-    <li>{prix} €</li>
-    <li>{surface} m²</li>
-    <li>{nbChambres} chambres</li>
-    <li>{nbSdb} salles de bain</li>
-  </ul>
+    <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5">
+      <div class="panel-card overflow-hidden reveal">
+        {image ? (
+          <PbImage record={offre} recordImage={image} width={1000} height={560} />
+        ) : (
+          <div class="h-[340px] grid place-items-center text-slate-500">Pas d'image disponible</div>
+        )}
+      </div>
+
+      <aside class="panel-card p-5 reveal">
+        <h2 class="text-xl font-semibold m-0 text-slate-900">Caracteristiques</h2>
+        <ul class="mt-4 mb-0 p-0 list-none grid gap-2">
+          <li class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+            <span>Prix</span>
+            <strong>{prix.toLocaleString('fr-FR')} EUR</strong>
+          </li>
+          <li class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+            <span>Surface</span>
+            <strong>{surface} m2</strong>
+          </li>
+          <li class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+            <span>Chambres</span>
+            <strong>{nbChambres}</strong>
+          </li>
+          <li class="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+            <span>Salles de bain</span>
+            <strong>{nbSdb}</strong>
+          </li>
+        </ul>
+      </aside>
+    </div>
+  </section>
 </Layout>

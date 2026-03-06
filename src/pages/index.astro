@@ -1,26 +1,404 @@
 ---
-import '../styles/global.css'
+import '../styles/global.css';
 import Layout from '../layouts/Layout.astro';
+import { getAgents, getOffres } from '../js/backend.mjs';
+
+const offres = await getOffres();
+const agents = await getAgents();
+
+const stats = {
+  offres: offres.length,
+  agents: agents.length,
+  favoris: offres.filter((offre) => (offre.favori ?? offre.Favori) === true).length,
+};
+
+const latestOffres = offres.slice(0, 3).map((offre) => {
+  return {
+    id: offre.id,
+    nom: offre.nomMaison ?? offre.Nom ?? 'Maison',
+    ville: (offre.adresse ?? offre.Adresse ?? 'Ville non renseignee').split(',').pop()?.trim(),
+    prix: Number(offre.prix ?? offre.Prix ?? 0),
+    surface: Number(offre.surface ?? offre.Superficie ?? 0),
+    favori: (offre.favori ?? offre.Favori) === true,
+  };
+});
 ---
 
 <Layout titre="Accueil">
+  <section class="home-hero">
+    <div class="shape shape-one"></div>
+    <div class="shape shape-two"></div>
 
-<section class="bg-gray-50 py-20">
-  <div class="max-w-7xl mx-auto px-6 text-center">
+    <div class="home-shell">
+      <div class="hero-grid">
+        <div class="hero-copy reveal">
+          <p class="kicker">Immobilier sur mesure</p>
+          <h1 class="hero-title">Trouve un bien qui colle a ton projet de vie.</h1>
+          <p class="hero-text">
+            Selection claire, agents disponibles et parcours simple pour visiter, comparer et choisir.
+          </p>
 
-    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900">
-      Trouvez votre
-      <span class="text-blue-600">bien idéal</span>
-    </h1>
+          <div class="hero-actions">
+            <a href="/offres" class="btn btn-primary">Voir les offres</a>
+            <a href="/agents" class="btn btn-ghost">Rencontrer les agents</a>
+          </div>
+        </div>
 
-    <p class="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">
-      Découvrez nos biens immobiliers sélectionnés avec soin
-      pour répondre à tous vos projets.
-    </p>
+        <div class="hero-panel reveal">
+          <p class="panel-title">Apercu rapide</p>
+          <div class="stat-grid">
+            <article class="stat-card">
+              <p class="stat-value">{stats.offres}</p>
+              <p class="stat-label">Offres en ligne</p>
+            </article>
+            <article class="stat-card">
+              <p class="stat-value">{stats.agents}</p>
+              <p class="stat-label">Agents actifs</p>
+            </article>
+            <article class="stat-card">
+              <p class="stat-value">{stats.favoris}</p>
+              <p class="stat-label">Biens favoris</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  </div>
-</section>
+  <section class="home-shell home-list">
+    <div class="list-head reveal">
+      <h2>Dernieres offres</h2>
+      <a href="/offres">Tout voir</a>
+    </div>
 
-
-
+    {latestOffres.length === 0 ? (
+      <p class="empty reveal">Aucune offre disponible pour le moment.</p>
+    ) : (
+      <div class="offer-grid">
+        {latestOffres.map((offre) => (
+          <article class="offer-card reveal">
+            <div class="offer-top">
+              <p class="offer-city">{offre.ville}</p>
+              {offre.favori && <span class="offer-fav">{'\u2605'} Favori</span>}
+            </div>
+            <h3>{offre.nom}</h3>
+            <p class="offer-meta">{offre.surface} m2</p>
+            <p class="offer-price">{offre.prix.toLocaleString('fr-FR')} EUR</p>
+            <a href={`/offres/${offre.id}`} class="offer-link">Voir la fiche</a>
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
 </Layout>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap');
+
+  :root {
+    --home-font-body: "Space Grotesk", "Segoe UI", sans-serif;
+    --home-font-display: "Fraunces", "Georgia", serif;
+    --home-ink: #0e243d;
+    --home-primary: #0f4fd5;
+    --home-accent: #2ab49f;
+    --home-bg: #eef5ff;
+  }
+
+  .home-hero {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 20% 20%, #d9f0ff 0%, transparent 42%),
+      radial-gradient(circle at 85% 15%, #d9ffe9 0%, transparent 35%),
+      linear-gradient(140deg, #f4f8ff 0%, #ecf3ff 55%, #e9f7ff 100%);
+    padding: 4rem 0 3rem;
+    font-family: var(--home-font-body);
+  }
+
+  .shape {
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(3px);
+    pointer-events: none;
+  }
+
+  .shape-one {
+    right: -7rem;
+    top: -5rem;
+    width: 18rem;
+    height: 18rem;
+    background: linear-gradient(140deg, #2ab49f, #5bd5ff);
+    opacity: 0.2;
+  }
+
+  .shape-two {
+    left: -6rem;
+    bottom: -8rem;
+    width: 16rem;
+    height: 16rem;
+    background: linear-gradient(140deg, #0f4fd5, #48a7ff);
+    opacity: 0.2;
+  }
+
+  .home-shell {
+    width: min(1120px, 92%);
+    margin: 0 auto;
+  }
+
+  .hero-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1.3fr 1fr;
+    align-items: stretch;
+  }
+
+  .hero-copy {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(15, 79, 213, 0.15);
+    border-radius: 24px;
+    padding: 2rem;
+    backdrop-filter: blur(2px);
+  }
+
+  .kicker {
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1b6a8f;
+    margin: 0 0 0.7rem;
+  }
+
+  .hero-title {
+    font-family: var(--home-font-display);
+    font-size: clamp(2rem, 4.2vw, 3.4rem);
+    line-height: 1.1;
+    color: var(--home-ink);
+    margin: 0 0 1rem;
+  }
+
+  .hero-text {
+    color: #39516e;
+    font-size: 1.05rem;
+    margin: 0 0 1.5rem;
+    max-width: 56ch;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  .btn {
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-primary {
+    background: var(--home-primary);
+    color: white;
+    box-shadow: 0 10px 24px rgba(15, 79, 213, 0.28);
+  }
+
+  .btn-ghost {
+    background: rgba(15, 79, 213, 0.1);
+    color: var(--home-primary);
+    border: 1px solid rgba(15, 79, 213, 0.25);
+  }
+
+  .hero-panel {
+    background: #0f4fd5;
+    color: white;
+    border-radius: 24px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  .stat-grid {
+    display: grid;
+    gap: 0.7rem;
+  }
+
+  .stat-card {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+  }
+
+  .stat-value {
+    margin: 0;
+    font-size: 1.65rem;
+    font-weight: 700;
+  }
+
+  .stat-label {
+    margin: 0.15rem 0 0;
+    font-size: 0.92rem;
+    opacity: 0.92;
+  }
+
+  .home-list {
+    font-family: var(--home-font-body);
+    padding: 2.3rem 0 0.5rem;
+  }
+
+  .list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .list-head h2 {
+    margin: 0;
+    color: var(--home-ink);
+    font-family: var(--home-font-display);
+    font-size: clamp(1.4rem, 2.8vw, 2rem);
+  }
+
+  .list-head a {
+    color: var(--home-primary);
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .offer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .offer-card {
+    background: white;
+    border: 1px solid #dbe7ff;
+    border-radius: 16px;
+    padding: 1rem;
+    box-shadow: 0 8px 22px rgba(8, 43, 99, 0.07);
+  }
+
+  .offer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .offer-city {
+    margin: 0;
+    color: #49617d;
+    font-size: 0.88rem;
+  }
+
+  .offer-fav {
+    font-size: 0.8rem;
+    color: #186b5d;
+    background: #dff6ef;
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    font-weight: 700;
+  }
+
+  .offer-card h3 {
+    margin: 0.55rem 0 0.35rem;
+    color: var(--home-ink);
+    font-size: 1.05rem;
+  }
+
+  .offer-meta {
+    margin: 0;
+    color: #4f6a89;
+    font-size: 0.9rem;
+  }
+
+  .offer-price {
+    margin: 0.55rem 0 0.8rem;
+    font-weight: 700;
+    color: #13365f;
+  }
+
+  .offer-link {
+    color: var(--home-primary);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .empty {
+    margin: 0;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--home-bg);
+    color: #365277;
+  }
+
+  .reveal {
+    animation: rise 0.65s ease both;
+  }
+
+  .hero-panel.reveal {
+    animation-delay: 0.12s;
+  }
+
+  .offer-card.reveal:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+
+  .offer-card.reveal:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 960px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .offer-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .home-hero {
+      padding: 2.6rem 0 2.2rem;
+    }
+
+    .hero-copy {
+      padding: 1.25rem;
+      border-radius: 18px;
+    }
+
+    .hero-panel {
+      border-radius: 18px;
+    }
+
+    .offer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

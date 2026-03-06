@@ -2,26 +2,70 @@
 import Layout from "../../layouts/Layout.astro";
 import { addOffre } from "../../js/backend.mjs";
 
-let message = '';
+let message = "";
 if (Astro.request.method === "POST") {
-    const formData = await Astro.request.formData();
-    const response = await addOffre(formData);
-    message = response.message;
+  const formData = await Astro.request.formData();
+  const response = await addOffre(formData);
+  message = response.message;
 }
 ---
 
 <Layout titre="Ajouter une offre">
-  <h1 class="text-lg">Ajouter une offre</h1>
-  <form action="/offres/add" method="POST" enctype="multipart/form-data">
-    <input type="text" name="Nom" placeholder="Nom de la maison" required class="w-full mt-2 p-2 border border-gray-300 rounded-md" />
-    <input type="number" name="Prix" placeholder="Prix" class="w-full mt-2 p-2 border border-gray-300 rounded-md" />
-    <input type="number" name="Nombre_sdb" placeholder="Nombre de salles de bain" class="w-full mt-2 p-2 border border-gray-300 rounded-md" />
-    <input type="number" name="Nombre_de_chambre" placeholder="Nombre de chambres" class="w-full mt-2 p-2 border border-gray-300 rounded-md" />
-    <input type="number" name="Superficie" placeholder="Superficie" class="w-full mt-2 p-2 border border-gray-300 rounded-md" />
-    <input type="text" name="Adresse" placeholder="Adresse" class="w-full mt-2 p-2 border border-gray-300 rounded-md" />
-    <input type="file" name="Image" class="w-full mt-2 p-2 border border-gray-300 rounded-md" />
-    <button type="submit" class="mt-2 bg-blue-700 text-white rounded-md px-4 py-2">Ajouter</button>
-  </form>
+  <section class="page-shell">
+    <div class="page-head">
+      <div>
+        <p class="page-kicker">Nouveau bien</p>
+        <h1>Ajouter une offre</h1>
+        <p class="page-note">Renseigne les infos principales puis enregistre la fiche.</p>
+      </div>
+      <a href="/offres" class="soft-btn">Retour aux offres</a>
+    </div>
 
-  {message && <p class="mt-4">{message}</p>}
+    <div class="panel-card p-4 md:p-5 reveal">
+      <form action="/offres/add" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <label class="block md:col-span-2">
+          <span class="text-sm text-slate-600 font-semibold">Nom</span>
+          <input type="text" name="Nom" required placeholder="Nom de la maison" class="form-input mt-1" />
+        </label>
+
+        <label class="block">
+          <span class="text-sm text-slate-600 font-semibold">Prix</span>
+          <input type="number" name="Prix" class="form-input mt-1" placeholder="Ex: 320000" />
+        </label>
+        <label class="block">
+          <span class="text-sm text-slate-600 font-semibold">Surface (m2)</span>
+          <input type="number" name="Superficie" class="form-input mt-1" placeholder="Ex: 96" />
+        </label>
+
+        <label class="block">
+          <span class="text-sm text-slate-600 font-semibold">Nombre de chambres</span>
+          <input type="number" name="Nombre_de_chambre" class="form-input mt-1" placeholder="Ex: 3" />
+        </label>
+        <label class="block">
+          <span class="text-sm text-slate-600 font-semibold">Nombre de salles de bain</span>
+          <input type="number" name="Nombre_sdb" class="form-input mt-1" placeholder="Ex: 2" />
+        </label>
+
+        <label class="block md:col-span-2">
+          <span class="text-sm text-slate-600 font-semibold">Adresse</span>
+          <input type="text" name="Adresse" class="form-input mt-1" placeholder="Ex: 12 rue des Oliviers, Montpellier" />
+        </label>
+
+        <label class="block md:col-span-2">
+          <span class="text-sm text-slate-600 font-semibold">Image</span>
+          <input type="file" name="Image" class="form-input mt-1 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-100 file:px-3 file:py-2 file:text-blue-800 file:font-semibold" />
+        </label>
+
+        <div class="md:col-span-2">
+          <button type="submit" class="solid-btn">Ajouter</button>
+        </div>
+      </form>
+
+      {message && (
+        <p class="mt-4 mb-0 text-sm font-semibold text-slate-700 bg-slate-100 rounded-lg px-3 py-2">
+          {message}
+        </p>
+      )}
+    </div>
+  </section>
 </Layout>

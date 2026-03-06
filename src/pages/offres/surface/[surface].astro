@@ -4,27 +4,34 @@ import OffreCard from "../../../components/OffreCard.astro";
 import { getOffres } from "../../../js/backend.mjs";
 
 const { surface } = Astro.params;
-const minSurface = parseInt(surface);
+const minSurface = parseInt(String(surface ?? "0"), 10);
 const allOffres = await getOffres();
 
 const offres = allOffres.filter((offre) => {
-  const valeur = Number(offre.surface ?? offre.Superficie);
+  const valeur = Number(offre.surface ?? offre.Superficie ?? 0);
   return valeur > minSurface;
 });
 ---
 
-<Layout titre={`Offres surface > ${minSurface} m²`}>
-  <h1 class="text-2xl font-bold mb-6">
-    Maisons avec une surface supérieure à {minSurface} m²
-  </h1>
-
-  {offres.length === 0 ? (
-    <p>Aucune offre trouvée.</p>
-  ) : (
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {offres.map((offre) => (
-        <OffreCard offre={offre} />
-      ))}
+<Layout titre={`Offres surface > ${minSurface} m2`}>
+  <section class="page-shell">
+    <div class="page-head">
+      <div>
+        <p class="page-kicker">Filtre surface</p>
+        <h1>Biens de plus de {minSurface} m2</h1>
+        <p class="page-note">{offres.length} resultat(s)</p>
+      </div>
+      <a href="/offres" class="soft-btn">Retour aux offres</a>
     </div>
-  )}
+
+    {offres.length === 0 ? (
+      <p class="panel-card p-5 text-slate-600 reveal">Aucune offre trouvee pour ce seuil de surface.</p>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {offres.map((offre) => (
+          <OffreCard offre={offre} />
+        ))}
+      </div>
+    )}
+  </section>
 </Layout>

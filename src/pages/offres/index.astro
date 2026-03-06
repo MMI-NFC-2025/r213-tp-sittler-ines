@@ -8,18 +8,16 @@ let message = "";
 
 if (Astro.request.method === "POST") {
   const data = await Astro.request.formData();
-  const minPrix = parseInt(data.get("minPrix"));
-  const maxPrix = parseInt(data.get("maxPrix"));
+  const minPrix = parseInt(String(data.get("minPrix") ?? "0"), 10);
+  const maxPrix = parseInt(String(data.get("maxPrix") ?? "0"), 10);
 
   if (minPrix > 0 && maxPrix > 0 && maxPrix > minPrix) {
     offres = await filterByPrix(minPrix, maxPrix);
-    if (offres.length === 0) {
-      message = `Pas d'offres entre ${minPrix}€ et ${maxPrix}€`;
-    } else {
-      message = `Liste des offres entre ${minPrix}€ et ${maxPrix}€`;
-    }
+    message = offres.length === 0
+      ? `Aucune offre entre ${minPrix} EUR et ${maxPrix} EUR.`
+      : `Offres entre ${minPrix} EUR et ${maxPrix} EUR.`;
   } else {
-    message = "Veuillez entrer des valeurs valides pour le prix.";
+    message = "Entre des valeurs valides pour le filtre prix.";
     offres = await getOffres();
   }
 } else {
@@ -28,51 +26,65 @@ if (Astro.request.method === "POST") {
 ---
 
 <Layout titre="Offres">
-  <h1 class="text-3xl font-bold text-blue-800 mb-6">Nos offres</h1>
+  <section class="page-shell">
+    <div class="page-head">
+      <div>
+        <p class="page-kicker">Catalogue immo</p>
+        <h1>Nos offres</h1>
+        <p class="page-note">Filtre, compare, puis ouvre la fiche detail d'un bien.</p>
+      </div>
+      <a href="/offres/add" class="solid-btn">Ajouter une offre</a>
+    </div>
 
-  <form action="/offres" method="POST" class="mb-6 flex flex-wrap gap-3">
-    <input type="number" name="minPrix" placeholder="Prix minimum" class="border rounded-md p-2" />
-    <input type="number" name="maxPrix" placeholder="Prix maximum" class="border rounded-md p-2" />
-    <input type="submit" value="Filtrer par prix" class="bg-blue-700 text-white rounded-md px-4 py-2 cursor-pointer" />
-  </form>
+    <div class="panel-card p-4 md:p-5 mb-5 reveal">
+      <form action="/offres" method="POST" class="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-3 items-end">
+        <label class="block">
+          <span class="text-sm text-slate-600 font-semibold">Prix minimum</span>
+          <input type="number" name="minPrix" placeholder="Ex: 200000" class="form-input mt-1" />
+        </label>
+        <label class="block">
+          <span class="text-sm text-slate-600 font-semibold">Prix maximum</span>
+          <input type="number" name="maxPrix" placeholder="Ex: 450000" class="form-input mt-1" />
+        </label>
+        <input type="submit" value="Filtrer" class="solid-btn h-fit" />
+      </form>
 
-  {message && <p class="mb-4">{message}</p>}
+      <div class="mt-3 flex flex-wrap gap-2">
+        <a href="/offres/surface/80" class="soft-btn">Surface superieure a 80 m2</a>
+        <button id="favori-button" class="soft-btn" type="button">Afficher les favoris</button>
+      </div>
 
-  <a href="/offres/surface/80" class="inline-block mb-6 text-blue-700 hover:underline">
-    Voir les maisons avec une surface supérieure à 80 m²
-  </a>
+      {message && (
+        <p class="mt-3 mb-0 text-sm font-semibold text-slate-700 bg-slate-100 rounded-lg px-3 py-2">
+          {message}
+        </p>
+      )}
+    </div>
 
-  <button
-    id="favori-button"
-    class="mb-8 rounded-full px-6 py-3 bg-blue-800 text-blue-100 hover:bg-blue-900 transition"
-  >
-    Afficher les favoris
-  </button>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {offres.map((offre) => (
-      <OffreCard offre={offre} />
-    ))}
-  </div>
+    {offres.length === 0 ? (
+      <p class="panel-card p-5 text-slate-600 reveal">Aucune offre disponible.</p>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {offres.map((offre) => (
+          <OffreCard offre={offre} />
+        ))}
+      </div>
+    )}
+  </section>
 
   <script>
-    const button = document.getElementById("favori-button");
+    const button = document.getElementById('favori-button');
     let showOnlyFavorites = false;
 
-    button?.addEventListener("click", () => {
+    button?.addEventListener('click', () => {
       showOnlyFavorites = !showOnlyFavorites;
 
-      document.querySelectorAll(".offre").forEach((card) => {
-        const isFavori = card.getAttribute("data-favori") === "true";
-
-        if (showOnlyFavorites) {
-          card.style.display = isFavori ? "block" : "none";
-          button.textContent = "Afficher tout";
-        } else {
-          card.style.display = "block";
-          button.textContent = "Afficher les favoris";
-        }
+      document.querySelectorAll('.offre').forEach((card) => {
+        const isFavori = card.getAttribute('data-favori') === 'true';
+        card.hidden = showOnlyFavorites && !isFavori;
       });
+
+      button.textContent = showOnlyFavorites ? 'Afficher tout' : 'Afficher les favoris';
     });
   </script>
 </Layout>

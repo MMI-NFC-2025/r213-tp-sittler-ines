@@ -13,21 +13,33 @@ if (!agent) {
 const nom = agent.nom ?? agent.Nom ?? "";
 const prenom = agent.prenom ?? agent.Prenom ?? "";
 const email = agent.email ?? agent.Email ?? "";
+const telephone = agent.telephone ?? agent.Telephone ?? "";
 const displayName = `${prenom} ${nom}`.trim() || `Agent ${agent.id}`;
 const offres = await getOffresByAgent(id);
 ---
 
 <Layout titre={`Offres de ${displayName}`}>
-  <h1 class="text-3xl font-bold text-blue-800 mb-2">Offres de {displayName}</h1>
-  {email && <p class="text-blue-700 mb-6">{email}</p>}
-
-  {offres.length === 0 ? (
-    <p>Aucune offre pour cet agent.</p>
-  ) : (
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {offres.map((offre) => (
-        <OffreCard offre={offre} />
-      ))}
+  <section class="page-shell">
+    <div class="page-head">
+      <div>
+        <p class="page-kicker">Agent</p>
+        <h1>{displayName}</h1>
+        <p class="page-note">
+          {email}
+          {telephone && ` - ${telephone}`}
+        </p>
+      </div>
+      <a href="/agents" class="soft-btn">Retour aux agents</a>
     </div>
-  )}
+
+    {offres.length === 0 ? (
+      <p class="panel-card p-5 text-slate-600 reveal">Aucune offre pour cet agent.</p>
+    ) : (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {offres.map((offre) => (
+          <OffreCard offre={offre} />
+        ))}
+      </div>
+    )}
+  </section>
 </Layout>
