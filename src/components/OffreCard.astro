@@ -27,9 +27,20 @@ const image =
       </div>
     )}
 
+    <button
+      type="button"
+      class="favoriteButton absolute bottom-0 left-0 p-2 text-white rounded-tr-lg bg-blue-900/80 hover:bg-blue-900"
+      data-offre={JSON.stringify(offre)}
+      aria-label="Ajouter aux favoris"
+    >
+      <span class="favorite-icon text-2xl leading-none" aria-hidden="true">
+        {favori ? "\u2605" : "\u2606"}
+      </span>
+    </button>
+
     {favori && (
       <span class="absolute top-3 right-3 bg-blue-800 text-blue-100 text-xs px-3 py-1 rounded-full">
-        ★ Favori
+        {"\u2605 Favori"}
       </span>
     )}
   </div>
@@ -44,3 +55,39 @@ const image =
     </a>
   </div>
 </article>
+
+<script>
+  //@ts-nocheck
+  import { setFavori } from "../js/backend.mjs";
+  const favoriteButtons = document.querySelectorAll(".favoriteButton");
+
+  favoriteButtons.forEach((button) => {
+    button.addEventListener('click', async () => {
+      const offreData = JSON.parse(button.dataset.offre || '{}');
+      const currentFavori = offreData.favori ?? offreData.Favori ?? false;
+      offreData.favori = currentFavori;
+      const newFavori = !currentFavori;
+
+      try {
+        await setFavori(offreData);
+      } catch (error) {
+        console.error("Impossible de mettre a jour le favori", error);
+        return;
+      }
+
+      const favIcon = button.querySelector('.favorite-icon');
+      if (favIcon) {
+        favIcon.textContent = newFavori ? "\u2605" : "\u2606";
+      }
+
+      offreData.favori = newFavori;
+      offreData.Favori = newFavori;
+      button.dataset.offre = JSON.stringify(offreData);
+
+      const card = button.closest('.offre');
+      if (card) {
+        card.setAttribute('data-favori', newFavori ? 'true' : 'false');
+      }
+    });
+  });
+</script>

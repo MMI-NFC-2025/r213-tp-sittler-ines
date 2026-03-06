@@ -261,3 +261,64 @@ export async function filterByPrix(minPrix, maxPrix) {
     return prix >= minPrix && prix <= maxPrix;
   });
 }
+
+function offreBelongsToAgent(offre, agentId) {
+  const relationFields = ['agent', 'Agent', 'agentId', 'agent_id', 'id_agent'];
+
+  for (const field of relationFields) {
+    const value = offre?.[field];
+    if (Array.isArray(value) && value.includes(agentId)) {
+      return true;
+    }
+    if (value === agentId) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+export async function getAgents() {
+  try {
+    return await allAgent();
+  } catch (error) {
+    console.log('Une erreur est survenue en lisant la liste des agents', error);
+    return [];
+  }
+}
+
+export async function getAgent(id) {
+  try {
+    return await withResolvedCollection(
+      'agent',
+      AGENT_COLLECTIONS,
+      ['agent'],
+      async (collectionName) => {
+      return await pb.collection(collectionName).getOne(id);
+      },
+    );
+  } catch (error) {
+    console.log("Une erreur est survenue en lisant l'agent", error);
+    return null;
+  }
+}
+
+export async function getOffresByAgent(agentId) {
+  const agent = await getAgent(agentId);
+  const offres = await getOffres();
+
+  const linkedOffres = agent?.liens ?? agent?.Liens;
+  if (Array.isArray(linkedOffres) && linkedOffres.length > 0) {
+    return offres.filter((offre) => linkedOffres.includes(offre.id));
+  }
+
+  return offres.filter((offre) => offreBelongsToAgent(offre, agentId));
+}
+
+export async function setFavori(house) {
+  const currentFavori = house?.favori ?? house?.Favori ?? false;
+  const favoriField = Object.prototype.hasOwnProperty.call(house ?? {}, 'favori')
+    ? 'favori'
+    : 'Favori';
+  return await updateMaisonById(house.id, { [favoriField]: !currentFavori });
+}
